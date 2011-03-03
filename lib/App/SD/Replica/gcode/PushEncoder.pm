@@ -3,6 +3,7 @@ use Any::Moose;
 use Params::Validate;
 use Net::Google::Code::Issue;
 use Net::Google::Code;
+use Try::Tiny;
 
 has sync_source => (
     isa => 'App::SD::Replica::gcode',
@@ -39,7 +40,7 @@ sub integrate_change {
         $self->sync_source->gcode->password($password);
     }
 
-    eval {
+    try {
         if (    $change->record_type eq 'ticket'
             and $change->change_type eq 'add_file' )
         {
@@ -73,11 +74,9 @@ sub integrate_change {
             ticket     => $id,
             changeset  => $changeset,
         );
+    } catch {
+        $self->sync_source->log( "Push error: " . $_ );
     };
-
-    if ( my $err = $@ ) {
-        $self->sync_source->log( "Push error: " . $err );
-    }
 
     return $id;
 }
