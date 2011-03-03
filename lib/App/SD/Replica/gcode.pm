@@ -56,36 +56,22 @@ sub BUILD {
     $self->project($project);
     $self->query($query) if defined $query;
 
-    my ( $email, $password );
-    unless ( $password ) {
-        ($email, $password) = $self->login_loop(
-            uri      => $project,
-            username => $email,
-            # remind the user that gcode logins are email addresses
-            username_prompt => sub {
-                my $project = shift;
-                return "Login email for $project (blank OK for read-only): ";
-            },
-            secret_prompt => sub {
-                my ($uri, $username) = @_;
-                return "Password for $username (blank OK for read-only): ";
-            },
-            login_callback => sub {
-                my ($self, $email, $password) = @_;
-                my %gcode_args = ( project => $self->project );
-                $gcode_args{$email} = $email if $email;
-                $gcode_args{$password} = $password if $password;
+    # We don't need a username / password to clone or pull, so don't
+    # prompt for these here, but do save credentials if they're specified.
+    # We'll prompt later when we try to do something that needs credentials.
 
-                $self->gcode( Net::Google::Code->new(%gcode_args) );
-            },
-        );
+    my ( $email, $password );
+    if ( $userinfo ) {
+       ( $email, $password ) = split /:/, $userinfo, 2;
+       $self->save_username_and_token( $email, $password );
     }
 
-    # Net::Google::Code->new() will never fail, and if ->load() fails
-    # it generally means that the project name was wrong, since auth
-    # isn't performed on load. So since there's no point in re-prompting for
-    # the username / password, we move ->load() to a separate try/catch block
-    # outside of login_loop().
+    my %gcode_args = ( project => $self->project );
+    $gcode_args{$email} = $email if $email;
+    $gcode_args{$password} = $password if $password;
+    # should never fail (no auth performed on create)
+    $self->gcode( Net::Google::Code->new( %gcode_args ) );
+
     try {
         $self->gcode->load();
     } catch {

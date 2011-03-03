@@ -31,14 +31,24 @@ sub integrate_change {
 
     my $before_integration = time();
     my ( $email, $password );
-    if ( !$self->sync_source->gcode->password ) {
-        ( $email, $password )
-            = $self->sync_source->prompt_for_login(
-                uri => 'gcode:' . $self->sync_source->project,
-            );
-        $self->sync_source->gcode->email($email);
-        $self->sync_source->gcode->password($password);
-    }
+    ($email, $password) = $self->sync_source->login_loop(
+        uri => 'gcode:' . $self->sync_source->project,
+        username => $email, password => $password,
+        # remind the user that gcode logins are email addresses
+        username_prompt => sub {
+            my $project = shift;
+            return "Login email for $project: ";
+        },
+        login_callback => sub {
+            my ($self, $email, $password) = @_;
+
+            $self->gcode( Net::Google::Code->new(
+                project => $self->project,
+                email   => $email, password => $password
+            ) );
+            $self->gcode->sign_in;
+        },
+    );
 
     try {
         if (    $change->record_type eq 'ticket'
