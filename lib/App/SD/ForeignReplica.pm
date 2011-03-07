@@ -445,6 +445,10 @@ sub login_loop {
             else {
                 warn "\n$_\n\n";
             }
+            # in the case of a failed login, reset username/password
+            # to nothing so we re-prompt for both in the case of
+            # having used saved values
+            ($login_args{username}, $login_args{password}) = (undef, undef);
         };
         $self->foreign_username($username) if ($username);
     }
