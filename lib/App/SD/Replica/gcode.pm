@@ -50,25 +50,27 @@ sub BUILD {
       if $Net::Google::Code::VERSION ge '0.15';
 
     my ( $userinfo, $project, $query ) =
-      $self->{url} =~ m!^gcode:(.*@)?(.*?)(?:/(.*))?$!
+      $self->{url} =~ m!^gcode:(?:(.*)@)?(.*?)(?:/(.*))?$!
       or die
 "Can't parse Google::Code server spec. Expected gcode:k9mail or gcode:user:password\@k9mail or gcode:user:password\@k9mail/q=string&can=all";
     $self->project($project);
+    $self->url($project); # url should be raw url minus scheme and auth info
     $self->query($query) if defined $query;
 
-    # We don't need a username / password to clone or pull, so don't
-    # prompt for these here, but do save credentials if they're specified.
-    # We'll prompt later when we try to do something that needs credentials.
+    # Since we don't need a username / password to clone or pull, we don't save
+    # the username and password here, if specified-- we only want to save
+    # username/password combinations after they've been verified to work. (So
+    # we save later if we end up trying to auth.) We do still want to parse any
+    # username/password specified in the url.
 
     my ( $email, $password );
     if ( $userinfo ) {
-       ( $email, $password ) = split /:/, $userinfo, 2;
-       $self->save_username_and_token( $email, $password );
+        ( $email, $password ) = split /:/, $userinfo, 2;
     }
 
     my %gcode_args = ( project => $self->project );
-    $gcode_args{$email} = $email if $email;
-    $gcode_args{$password} = $password if $password;
+    $gcode_args{email} = $email if $email;
+    $gcode_args{password} = $password if $password;
     # should never fail (no auth performed on create)
     $self->gcode( Net::Google::Code->new( %gcode_args ) );
 

@@ -30,7 +30,11 @@ sub integrate_change {
         $changeset->original_source_uuid ) >= $changeset->original_sequence_no;
 
     my $before_integration = time();
-    my ( $email, $password );
+
+    # grab any email/password that may have been specified in the --to url
+    my ( $email, $password ) = ($self->sync_source->gcode->email,
+                                $self->sync_source->gcode->password);
+
     ($email, $password) = $self->sync_source->login_loop(
         uri => 'gcode:' . $self->sync_source->project,
         username => $email, password => $password,
@@ -42,11 +46,17 @@ sub integrate_change {
         login_callback => sub {
             my ($self, $email, $password) = @_;
 
-            $self->gcode( Net::Google::Code->new(
-                project => $self->project,
-                email   => $email, password => $password
-            ) );
+            # gcode.pm's BUILD has already been called, so we don't need to
+            # create the initial object, just specify auth
+            $self->gcode->email($email);
+            $self->gcode->password($email);
             $self->gcode->sign_in;
+        },
+        catch_callback => sub {
+            my $error = shift;
+            $error =~ s/at .* line [0-9]+\.//;
+
+            warn "\n$error\n";
         },
     );
 
