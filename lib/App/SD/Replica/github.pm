@@ -21,7 +21,33 @@ has repo       => ( isa => 'Str',             is => 'rw' );
 has query      => ( isa => 'Str',             is => 'rw' );
 has foreign_username => ( isa => 'Str', is              => 'rw' );
 
-our %PROP_MAP = ( state => 'status', title => 'summary' );
+our %PROP_MAP = (
+    state      => 'status',
+    title      => 'summary',
+    created_at => 'created',
+);
+
+=head2 GitHub sync details
+
+GitHub has a somewhat limited ticketing functionality (GitHub calls tickets
+"issues").
+
+Tickets have two states: open or closed.
+
+Once a ticket is created, the following modifications can be made to it:
+- edit ticket body/title
+- add a new comment
+- edit a comment's body
+- close a ticket (or reopen)
+
+Thus, there is no "history" API call---we just get the current state, and we
+can formulate our own history based on the list of comments, updated_at
+timestamps, and comparing our state with the current state.
+
+GitHub issues can also have arbitrary "labels" applied to them, but we're
+currently ignoring this functionality.
+
+=cut
 
 sub BUILD {
     my $self = shift;
