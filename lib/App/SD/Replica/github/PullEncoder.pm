@@ -6,6 +6,8 @@ use Params::Validate qw(:all);
 use Memoize;
 use DateTime;
 
+use App::SD::Util;
+
 has sync_source => (
     isa => 'App::SD::Replica::github',
     is  => 'rw',
@@ -40,16 +42,9 @@ sub find_matching_tickets {
     my %query                  = (@_);
     my $last_changeset_seen_dt = $self->_only_pull_tickets_modified_after()
       || DateTime->from_epoch( epoch => 0 );
-    $last_changeset_seen_dt->set_time_zone( '-0700' );
-    my $dt = $last_changeset_seen_dt;
-    my $last_dt_str = sprintf(
-        "%4d/%02d/%02d %02d:%02d:%02d -0700",
-        $dt->year, $dt->month,  $dt->day,
-        $dt->hour, $dt->minute, $dt->second
-    );
     my $issue = $self->sync_source->github->issue;
-    my @updated =
-      grep { $_->{updated_at} ge $last_dt_str }
+    my @updated = grep {
+        App::SD::Util::string_to_datetime($_->{updated_at}) > $last_changeset_seen_dt }
       ( @{ $issue->list('open') }, @{ $issue->list('closed') } );
     return \@updated;
 }
