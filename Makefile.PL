@@ -40,7 +40,7 @@ recommends 'Email::Address';
 feature 'Trac sync' => (
     -default => 0,
     'LWP::Simple' => 0,
-    'Net::Trac' => 0.13,
+    'Net::Trac' => 0.16,
 );
 
 recommends 'Net::Trac';
