@@ -31,6 +31,7 @@ sub transcode_one_txn {
     my $changeset = Prophet::ChangeSet->new(
         {   original_source_uuid => $self->sync_source->uuid,
             original_sequence_no => $txn->{'id'},
+            creator => $self->sync_source->user_info( id => $txn->{'created_by'} )->{'email'},
         }
     );
 
@@ -155,6 +156,7 @@ sub recode_create {
     while ( my ( $k, $v ) = each %{ $args{'task'} } ) {
         $res->add_prop_change( name => $k, old => undef, new => $v );
     }
+
     return $res;
 }
 
