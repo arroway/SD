@@ -42,6 +42,8 @@ sub transcode_one_txn {
     my $change = $self->$method( task => $ticket_final, transaction => $txn );
 
     $changeset->add_change( { change => $change } );
+
+    # XXX is this tested at all? this method doesn't exist
     for my $email ( @{ $txn->{email_entries} } ) {
         if ( my $sub = $self->can( '_recode_email_' . 'blah' ) ) {
             $sub->(
@@ -176,6 +178,56 @@ sub recode_update {
         );
     }
     return $res;
+}
+
+# This is a comment, basically.
+sub recode_email {
+    my $self = shift;
+    my %args = validate( @_, { task => 1, transaction => 1 } );
+
+    # I *think* we should only ever have one email entry at a time, but let's
+    # check to make sure
+    if ( scalar @{$args{'transaction'}->{'email_entries'}} > 1 ) {
+        use Data::Dumper;
+        die "more than one entry in email_entries:\n"
+            . Dumper($args{'transaction'}->{'email_entries'});
+    }
+
+    my $ticket_uuid = $self->sync_source->uuid_for_remote_id( $args{'transaction'}->{'task_id'} );
+
+    my $comment = Prophet::Change->new(
+        {   record_type => 'comment',
+            record_uuid => $self->sync_source->uuid_for_remote_id(
+                                $args{'transaction'}->{'id'} ),
+            change_type => 'add_file',
+        }
+    );
+    # we're assuming non-multipart messages...
+    use Email::MIME;
+    my $parsed = Email::MIME->new(
+        $args{'transaction'}->{'email_entries'}->[0]->{'message'} );
+    my $content = $parsed->body_str();
+    # we ignore the headers on the email since we can get sender from elsewhere
+
+    $comment->add_prop_change(
+        name => 'content',
+        new => $content,
+    );
+
+    $comment->add_prop_change(
+        name => 'created',
+        new => $args{'txn'}->{'modified_at'}, # already UTC and correct format
+    );
+
+    $comment->add_prop_change( name => 'ticket', new => $ticket_uuid );
+
+    # XXX do we always want to be using text/plain?
+    $comment->add_prop_change(
+        name => 'content_type',
+        new => 'text/plain',
+    );
+
+    return $comment;
 }
 
 sub translate_props {
