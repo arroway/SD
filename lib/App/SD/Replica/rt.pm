@@ -37,17 +37,22 @@ sub BUILD {
         or die "Can't parse RT server spec. Expected 'rt:http://example.com|QUEUE|QUERY'.\n"
                 ."Try: 'rt:http://example.com/|General|'.\n";
     my $uri = URI->new($server);
-    my ( $username, $password );
-    if ( my $auth = $uri->userinfo ) {
-        ( $username, $password ) = split /:/, $auth, 2;
-        $uri->userinfo(undef);
-    }
-    $self->remote_url($uri->as_string);
+
+    my ($username, $password) = $self->extract_auth_from_uri($server);
+
     $self->rt_queue($type);
     $self->query( ( $query ?  "($query) AND " :"") . " Queue = '$type'" );
     $self->rt( RT::Client::REST->new( server => $server ) );
 
-    unless ( $password ) {
+    if ( $password ) {
+        try {
+            $self->rt->login( username => $username, password => $password );
+        } catch {
+            die "Bad username or password specified in URL! ".
+                "Error message was:\n$_\n";
+        };
+    }
+    else {
         ($username, $password) = $self->login_loop(
             uri      => $uri,
             username => $username,
