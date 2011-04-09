@@ -2,7 +2,6 @@ package App::SD::Replica::hm;
 use Any::Moose;
 extends 'App::SD::ForeignReplica';
 use Params::Validate qw(:all);
-use URI;
 use Memoize;
 use Prophet::ChangeSet;
 use File::Temp 'tempdir';
@@ -44,51 +43,59 @@ sub BUILD {
         or die
         "Can't parse Hiveminder server spec. Expected hm:http://hiveminder.com or hm:http://hiveminder.com|props";
 
-    $self->url($server);
-    my $uri = URI->new($server);
+    my ($username, $password) = $self->extract_auth_from_uri($server);
 
-    my ( $username, $password );
-    if ( $uri->can('userinfo') && ( my $auth = $uri->userinfo ) ) {
-        ( $username, $password ) = split /:/, $auth, 2;
-        $uri->userinfo(undef);
+    if ( $password ) {
+        try {
+            $self->_hiveminder_login($username, $password);
+        } catch {
+            die "Bad username or password specified in URL! ".
+                "Error message was:\n".
+                _hiveminder_clean_login_error($_);
+        };
     }
-    $self->remote_url("$uri");
-
-    unless ( $password ) {
+    else {
         ($username, $password) = $self->login_loop(
-            uri      => $uri,
+            uri      => $self->remote_url,
             username => $username,
             # remind the user that hiveminder logins are email addresses
             username_prompt => sub {
                 my $uri = shift;
                 return "Login email for $uri: ";
             },
-            login_callback => sub {
-                my ($self, $username, $password) = @_;
-
-                $self->hm(
-                    Net::Jifty->new(
-                        site        => $self->remote_url,
-                        cookie_name => 'JIFTY_SID_HIVEMINDER',
-                        email    => $username,
-                        password => $password
-                    )
-                );
-            },
+            login_callback => \&_hiveminder_login,
             catch_callback => sub {
-                my $verbose_error = shift;
-                # Net::Jifty uses Carp::confess to deal with login problems :(
-                my $error_message = (split /\n/, $verbose_error)[0];
-                $error_message =~ s/ at .* line [0-9]+$//;
-                warn "\n$error_message\n\n";
-            }
+                my ($verbose_error) = @_;
+                warn _hiveminder_clean_login_error($verbose_error);
+            },
         );
     }
+    $self->foreign_username($username);
 
     if ($props) {
         my %props = split /=|;/, $props;
         $self->props( \%props );
     }
+}
+
+sub _hiveminder_login {
+    my ($self, $username, $password) = @_;
+    $self->hm(
+        Net::Jifty->new(
+            site        => $self->remote_url,
+            cookie_name => 'JIFTY_SID_HIVEMINDER',
+            email    => $username,
+            password => $password
+        )
+    );
+}
+
+sub _hiveminder_clean_login_error {
+    my $verbose_error = shift;
+    # Net::Jifty uses Carp::confess to deal with login problems :(
+    my $error_message = (split /\n/, $verbose_error)[0];
+    $error_message =~ s/ at .* line [0-9]+$//;
+    return "\n$error_message\n\n";
 }
 
 sub request_failed {

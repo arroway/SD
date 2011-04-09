@@ -3,6 +3,7 @@ use Any::Moose;
 use Params::Validate qw/:all/;
 
 use Try::Tiny;
+use URI;
 
 extends 'Prophet::ForeignReplica';
 
@@ -454,6 +455,34 @@ sub login_loop {
     }
     # only save username/password if login was successful
     $self->save_username_and_token( $username, $password );
+
+    return ($username, $password);
+}
+
+=head2 extract_auth_from_uri( $uri_string )
+
+Given a server URI string, possibly containing auth info, extract the
+auth info if it exists.
+
+Also sets the remote_url and url attribute to the server URI with the auth
+information removed.
+
+returns: ($username, $password)
+
+=cut
+
+sub extract_auth_from_uri {
+    my ($self, $uri_string) = @_;
+
+    my $uri = URI->new($uri_string);
+    my ($username, $password);
+
+    if ( $uri->can('userinfo') && ( my $auth = $uri->userinfo ) ) {
+        ( $username, $password ) = split /:/, $auth, 2;
+        $uri->userinfo(undef);
+    }
+    $self->remote_url("$uri");
+    $self->url("$uri");
 
     return ($username, $password);
 }
