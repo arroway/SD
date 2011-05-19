@@ -6,6 +6,7 @@ use File::Path;
 use File::Spec;
 use HTML::TreeBuilder;
 use URI::file;
+use Try::Tiny;
 
 sub export_html {
     my $self = shift;
@@ -44,28 +45,31 @@ sub render_templates_into {
         my $seen  = {};
         while ( my $file = shift @links ) {
             next if $seen->{$file};
-			local $ENV{'REQUEST_URI'} = $file;
-            eval {
+	    local $ENV{'REQUEST_URI'} = $file;
+            try {
                 $cgi->path_info($file);
                 my $content = $server->handle_request($cgi);
-                my $page_links = [];
-                ( $content, $page_links ) = $self->work_with_urls( $file, $content );
 
-                push @links, grep { !$seen->{$_} } @$page_links;
+		if ( defined $content ) {
+		    my $page_links = [];
+		    ( $content, $page_links ) = $self->work_with_urls( $file, $content );
 
-                $self->write_file( $dir, $file, $content );
+		    push @links, grep { !$seen->{$_} } @$page_links;
 
-                $seen->{$file}++;
-            };
+		    $self->write_file( $dir, $file, $content );
 
-            if ( $@ =~ /^REDIRECT (.*)$/ ) {
-                my $new_file = $1;
-                chomp($new_file);
-                $self->handle_redirect( $dir, $file, $new_file );
-                unshift @links, $new_file;
-            } elsif ($@) {
-                die $@;
-            }
+		    $seen->{$file}++;
+		}
+            } catch {
+		if ( $_ =~ /^REDIRECT (.*)$/ ) {
+		    my $new_file = $1;
+		    chomp($new_file);
+		    $self->handle_redirect( $dir, $file, $new_file );
+		    unshift @links, $new_file;
+		} elsif ($_) { # rethrow
+		    die $_;
+		}
+	    };
         }
     }
 }
