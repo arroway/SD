@@ -15,8 +15,8 @@ on qr'.' => sub {
 
 on qr'.' => sub {
     my $self = shift;
-    $self->server->nav->child( history => label => 'History', url => '/history');
-    my $tickets = $self->server->nav->child( tickets => label => 'Tickets', url => '/');
+    $self->server->page_nav->child( history => label => 'History', url => '/history');
+    my $tickets = $self->server->page_nav->child( tickets => label => 'Tickets', url => '/');
     $tickets->child( go => label => '<form method="GET" action="/ticket/"><a href="#">Show ticket # <input type=text name=id size=3></a></form>', escape_label => 0) unless($self->server->static);
 
 
@@ -43,8 +43,8 @@ on qr'.' => sub {
     $components->child('None' => label => 'None', url => '/component/');
 
     $tickets->child( all => label => 'All' => url => '/tickets/all');
-    $self->server->nav->child( create => label => 'New ticket', url => '/ticket/new') unless($self->server->static);
-    $self->server->nav->child( home => label => 'Home', url => '/');
+    $self->server->page_nav->child( create => label => 'New ticket', url => '/ticket/new') unless($self->server->static);
+    $self->server->page_nav->child( home => label => 'Home', url => '/');
 
 
     next_rule;

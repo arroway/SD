@@ -348,7 +348,7 @@ outs("SD $App::SD::VERSION - Issue tracking for the distributed age - ".
 template header => sub {
     my $self = shift;
     my $title = shift;
-    outs_raw($self->nav->render_as_menubar) if ($self->nav);
+    outs_raw($self->page_nav->render_as_menubar) if ($self->page_nav);
         div{ class is 'logowrapper';
         img { src is '/static/sd/images/sd.png';
               alt is 'SD Logo',
