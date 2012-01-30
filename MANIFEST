@@ -93,6 +93,8 @@ lib/App/SD/Replica/lighthouse/PushEncoder.pm
 lib/App/SD/Replica/redmine.pm
 lib/App/SD/Replica/redmine/PullEncoder.pm
 lib/App/SD/Replica/redmine/PushEncoder.pm
+lib/App/SD/Replica/oslccm.pm
+lib/App/SD/Replica/oslccm/PullEncoder.pm
 lib/App/SD/Replica/rt.pm
 lib/App/SD/Replica/rt/PullEncoder.pm
 lib/App/SD/Replica/rt/PushEncoder.pm

@@ -72,6 +72,13 @@ feature 'Lighthouse sync' => (
     'Net::Lighthouse' => 0.01,
 );
 
+feature 'OSLC-CM sync (dev)' => (
+    -default        => 0,
+    'HTTP::Request' => 0,
+);
+
+recommends 'HTTP::Request';
+
 install_script('bin/sd');
 install_script('bin/git-sd');
 install_script('bin/darcs-sd');

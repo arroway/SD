@@ -1,0 +1,70 @@
+package App::SD::Replica::oslccm;
+use Any::Moose;
+extends qw/App::SD::ForeignReplica/;
+
+use Params::Validate qw(:all);
+use Memoize;
+use Try::Tiny;
+
+use URI;
+use Prophet::ChangeSet;
+use LWP::UserAgent;
+use HTTP::Request;
+
+#use un client rest, ou alors un module special oslc
+
+use constant scheme => 'oslccm';
+use constant pull_encoder => 'App::SD::Replica::oslccm::PullEncoder';
+use Prophet::ChangeSet;
+
+has oslccm     => (isa => 'LWP::UserAgent', is => 'rw');
+has remote_url => (isa => 'Str', is => 'rw');
+
+sub BUILD {
+    my $self = shift;
+
+    #Use 'require' refer than 'use' to defer load
+    try {
+        require HTTP::Request;
+    } catch {
+        warn $_ if $ENV{PROPHET_DEBUG};
+        die "HTTP::Request is required to sync via OSLC-CM protocole\n";
+    };
+
+    # $type and $query are empty
+    my ($server, $type, $query) = $self->{url} =~ m/^oslccm:(.*?)$/
+    or die "Can't parse OSLC server spec. Expected oslccm:http://example.com";
+
+    my $uri = URI->new($server);
+
+    $self->remote_url($uri->as_string);
+
+    #authentication
+
+    $self->oslccm(
+       LWP::UserAgent->new()
+    );
+
+    my $request = HTTP::Request->new(GET => $self->remote_url);
+    $self->oslccm->request($request);
+  
+}
+
+sub record_pushed_transactions {}
+
+sub _uuid_url {
+    my $self = shift;
+    return $self->remote_url;
+}
+
+sub remote_uri_path_for_id {
+    my $self = shift;
+    my $id = shift;
+    return "/issues/show".$id;
+}
+
+
+__PACKAGE__->meta->make_immutable;
+no Any::Moose;
+
+1;
