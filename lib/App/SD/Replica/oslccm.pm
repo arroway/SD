@@ -46,9 +46,10 @@ sub BUILD {
        LWP::UserAgent->new()
     );
 
-    my $request = HTTP::Request->new(GET => "http://192.168.56.101:8282/bugz/provider?productId=1");
-    my $response = $self->oslccm->request($request);
-    print $response->as_string;
+    #just testing
+    #my $request = HTTP::Request->new(GET => "http://192.168.56.101:8282/bugz/provider?productId=1");
+    #my $response = $self->oslccm->request($request);
+    #print $response->as_string;
 }
 
 sub record_pushed_transactions {}
