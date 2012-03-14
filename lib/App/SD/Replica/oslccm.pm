@@ -7,9 +7,8 @@ use Memoize;
 use Try::Tiny;
 
 use URI;
+use Net::OSLC::CM;
 use Prophet::ChangeSet;
-use LWP::UserAgent;
-use HTTP::Request;
 
 #use un client rest, ou alors un module special oslc
 
@@ -17,7 +16,7 @@ use constant scheme => 'oslccm';
 use constant pull_encoder => 'App::SD::Replica::oslccm::PullEncoder';
 use Prophet::ChangeSet;
 
-has oslccm     => (isa => 'LWP::UserAgent', is => 'rw');
+has oslccm     => (isa => 'Net::OSLC::CM::Connection', is => 'rw');
 has remote_url => (isa => 'Str', is => 'rw');
 has query      => (isa => 'Maybe[Str]', is => 'rw');
 
@@ -26,10 +25,10 @@ sub BUILD {
 
     #Use 'require' refer than 'use' to defer load
     try {
-        require HTTP::Request;
+        require Net::OSLC::CM;
     } catch {
         warn $_ if $ENV{PROPHET_DEBUG};
-        die "HTTP::Request is required to sync via OSLC-CM protocole\n";
+        die "Net::OSLC::CM is required to sync via OSLC-CM protocole\n";
     };
 
     # $type and $query are empty
@@ -43,9 +42,10 @@ sub BUILD {
     #authentication
 
     $self->oslccm(
-       LWP::UserAgent->new()
+        Net::OSLC::CM::connect(url => $self->remote_url)  
     );
 
+    print 'test';
     #just testing
     #my $request = HTTP::Request->new(GET => "http://192.168.56.101:8282/bugz/provider?productId=1");
     #my $response = $self->oslccm->request($request);

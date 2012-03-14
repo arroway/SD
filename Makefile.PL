@@ -75,9 +75,8 @@ feature 'Lighthouse sync' => (
 feature 'OSLC-CM sync (dev)' => (
     -default        => 0,
     'HTTP::Request' => 0,
+    'Net::OSLC::CM' => 0.01,
 );
-
-recommends 'HTTP::Request';
 
 install_script('bin/sd');
 install_script('bin/git-sd');
