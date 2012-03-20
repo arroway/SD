@@ -8,8 +8,6 @@ use DateTime;
 
 use App::SD::Util;
 
-#use HTTP::Common::Request;
-
 has sync_source => (
     isa => 'App::SD::Replica::oslccm',
     is  => 'rw',
@@ -33,6 +31,10 @@ Returns an array of all tickets found that match your QUERY hash
 sub find_matching_tickets {
     my $self = shift;
     my %query = (@_);
+
+    $self->sync_source->oslccm->parse_provider_resource;
+
+
 
     #search query
     #return results

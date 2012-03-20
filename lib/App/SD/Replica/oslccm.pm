@@ -16,7 +16,7 @@ use constant scheme => 'oslccm';
 use constant pull_encoder => 'App::SD::Replica::oslccm::PullEncoder';
 use Prophet::ChangeSet;
 
-has oslccm     => (isa => 'Net::OSLC::CM::Connection', is => 'rw');
+has oslccm     => (isa => 'Net::OSLC::CM', is => 'rw');
 has remote_url => (isa => 'Str', is => 'rw');
 has query      => (isa => 'Maybe[Str]', is => 'rw');
 
@@ -42,7 +42,8 @@ sub BUILD {
     #authentication
 
     $self->oslccm(
-        Net::OSLC::CM::connect(url => $self->remote_url)  
+        Net::OSLC::CM->new(
+          url => $self->remote_url)  
     );
 
     print 'test';
