@@ -32,7 +32,7 @@ sub find_matching_tickets {
     my $self = shift;
     my %query = (@_);
 
-    $self->sync_source->oslccm->parse_provider_resource;
+    $self->sync_source->oslccm->get_provider_resources;
 
 
 
