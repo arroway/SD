@@ -10,8 +10,6 @@ use URI;
 use Net::OSLC::CM;
 use Prophet::ChangeSet;
 
-#use un client rest, ou alors un module special oslc
-
 use constant scheme => 'oslccm';
 use constant pull_encoder => 'App::SD::Replica::oslccm::PullEncoder';
 use Prophet::ChangeSet;
@@ -36,22 +34,29 @@ sub BUILD {
     or die "Can't parse OSLC server spec. Expected oslccm:http://example.com";
 
     my $uri = URI->new($server);
+    my ($username, $password);
+    if (my $auth = $uri->userinfo){
+      ($username, $password) = split /:/, $auth, 2;
+      $uri->userinfo(undef);
+    }
 
     $self->remote_url($uri->as_string);
 
     #authentication
+    ($username, $password) 
+      = $self->prompt_for_login(
+        uri      => $uri,
+        username => $username,
+      ) unless $password;
 
     $self->oslccm(
         Net::OSLC::CM->new(
-          url => $self->remote_url)  
-    );
+          url      => $self->remote_url,
+          username => $username,
+          password => $password 
+    ));
 
-    print 'test';
-    #just testing
-    #my $request = HTTP::Request->new(GET => "http://192.168.56.101:8282/bugz/provider?productId=1");
-    #my $response = $self->oslccm->request($request);
-    #print $response->as_string;
-}
+ }
 
 sub record_pushed_transactions {}
 
