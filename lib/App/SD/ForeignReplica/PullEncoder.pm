@@ -33,10 +33,15 @@ sub run {
         $progress->();
         $self->sync_source->log_debug( "Fetching $counter of " . scalar @$tickets  . " tickets");
         ( $last_modified, $changesets ) = $self->transcode_ticket( $ticket, $last_modified );
+        print "end transcode_ticket \n";
         unshift @changesets, @$changesets;
+        print "after unsift changesets \n";
     }
     my $sorted_changesets = [ sort {
         $a->original_sequence_no <=> $b->original_sequence_no } @changesets ];
+    print "after sort changesets\n";
+
+    print "end run \n";
     return $sorted_changesets;
 }
 
@@ -62,6 +67,7 @@ sub transcode_ticket {
 
     my $changesets;
     ( $last_modified, $changesets ) = $self->transcode_history( $ticket, $transactions, $last_modified );
+    print "end transcode_ticket \n";
     return ( $last_modified, $changesets );
 }
 

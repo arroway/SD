@@ -67,8 +67,8 @@ sub _uuid_url {
 
 sub remote_uri_path_for_id {
     my $self = shift;
-    my $id = shift;
-    return "/issues/show".$id;
+    my $identifier = shift;
+    return "/changerequest/".$identifier;
 }
 
 
