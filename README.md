@@ -1,13 +1,13 @@
 # SD version 0.75
 
 SD is a peer-to-peer replicated distributed issue tracker.
-http://syncwith.us[syncwithus]
+[http://syncwith.us][syncwithus]
 
 ## Installation
 
 Noticeable Dependencies:
 
-Prophet[prophet]
+[Prophet][prophet]
 
 ~~~ sh
   $ git clone git://gitorious.org/prophet/prophet.git
@@ -18,7 +18,7 @@ To get the latest version:
   $ git clone git://gitorious.org/prophet/sd.git
 ~~~ 
 
-SD v0.75 is also available on CPAN: http://search.cpan.org/~spang/App-SD-0.75/bin/sd
+SD v0.75 is also available on [CPAN][cpan].
 
 ## Help
 
@@ -29,7 +29,7 @@ SD v0.75 is also available on CPAN: http://search.cpan.org/~spang/App-SD-0.75/bi
 
 ## Examples of commands
 
-A complete documentation is available on syncwith.us[sd-doc].
+A complete documentation is available on [syncwith.us][sd-doc].
 
 ~~~ sh
   # Creates a repo
@@ -75,7 +75,7 @@ The OSLC-CM connector aims at synchronizing databases from bugtrackers implement
 an Service Provider OSLC-CM connector. It allows SD to be, in the terms of OSLC-CM, 
 a OSLC-CM Consumer.
 
-The OSLC-CM connector uses the module Net-OSLC-CM[net::oslc::cm]. 
+The OSLC-CM connector uses the module [Net-OSLC-CM][net::oslc::cm]. 
 It has been tested with a Bugzilla Service Provider.
 
 At this stage of development:
@@ -106,4 +106,4 @@ Distributed under the terms of the MIT License
 [prophet]:
 [sd-doc]: http://syncwith.us
 [net::oslc::cm]: http://github.com/arroway/Net-OSLC-CM
-
+[cpan]: http://search.cpan.org/~spang/App-SD-0.75/bin/sd
