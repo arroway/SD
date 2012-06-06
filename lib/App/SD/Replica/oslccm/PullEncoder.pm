@@ -217,7 +217,7 @@ sub transcode_create_txn {
 
     my $ticket_id   = $final_data->{ $self->sync_source->uuid . '-id' };
     my $ticket_uuid = $self->sync_source->uuid_for_remote_id($ticket_id);
-    my $creator     = 'xxx@example.com';
+    my $creator     = $final_data->{creator};
     my $created     = $final_data->{created};
 
     my $changeset = Prophet::ChangeSet->new({
