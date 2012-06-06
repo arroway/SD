@@ -9,18 +9,15 @@ Noticeable Dependencies:
 
 * Prophet[prophet]
 ~~~ sh
-  $ git clone   
+  $ git clone git://gitorious.org/prophet/prophet.git
 ~~~ 
 
 To get the latest version:
 ~~~ sh
-  $ git clone   
+  $ git clone git://gitorious.org/prophet/sd.git
 ~~~ 
 
-SD v0.75 is also available on CPAN:
-~~~ sh
-  $ cpan 
-~~~ 
+SD v0.75 is also available on CPAN: http://search.cpan.org/~spang/App-SD-0.75/bin/sd
 
 ## Help
 
