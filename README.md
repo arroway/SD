@@ -7,7 +7,8 @@ http://syncwith.us[syncwithus]
 
 Noticeable Dependencies:
 
-* Prophet[prophet]
+Prophet[prophet]
+
 ~~~ sh
   $ git clone git://gitorious.org/prophet/prophet.git
 ~~~ 
@@ -34,8 +35,9 @@ A complete documentation is available on syncwith.us[sd-doc].
   # Creates a repo
   $ sd init
  
-  # Clones a distant database (replica)
-  $ sd clone --from ''
+  # Local clone of a repository
+  $ SD_REPO=~/sd-bugs
+  $ sd clone --from http://spang.cc/data/sd-bugs/
 
   # Shows the tickets of the database (replica)
   $ sd ticket list
