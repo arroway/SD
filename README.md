@@ -68,7 +68,33 @@ Available connectors: rt, trac, redmine, github, googlecode...
 
 ~~~ sh
   $ git clone --from "rt:http://my-rt-repo.com"; 
-~~~ 
+~~~
+
+## About the OSLC-CM connector
+
+The OSLC-CM connector aims at synchronizing databases from bugtrackers implementing
+an Service Provider OSLC-CM connector. It allows SD to be, in the terms of OSLC-CM, 
+a OSLC-CM Consumer.
+
+The OSLC-CM connector uses the module Net-OSLC-CM[net::oslc::cm]. 
+It has been tested with a Bugzilla Service Provider.
+
+At this stage of development:
+
+Feature:
+* Cloning a bugtracker database available through a OSLC-CM Service Provider
+
+Limitation:
+* A global reseach using the commands `sd ticket list`  ou `sd ticket search` fails.
+  Going the same, the home page of the server is empty.
+  However, researches with a specified field work, as well as for tickets being created
+  inside the cloned replica.
+  Other commands seem to work correctly (create, update...)
+
+~~~ sh
+  $ git clone --from "oslccm:http//my-service-provider.com:port"; 
+~~~
+
 
 ## Copyright
 
@@ -80,3 +106,5 @@ Distributed under the terms of the MIT License
 [syncwithus]: http://syncwith.us
 [prophet]:
 [sd-doc]: http://syncwith.us
+[net::oslc::cm]: http://github.com/arroway/Net-OSLC-CM
+
