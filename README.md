@@ -71,6 +71,8 @@ Available connectors: rt, trac, redmine, github, googlecode...
 
 ## About the OSLC-CM connector
 
+See [this][webpage] web page for more documentation.
+
 The OSLC-CM connector aims at synchronizing databases from bugtrackers implementing
 an Service Provider OSLC-CM connector. It allows SD to be, in the terms of OSLC-CM, 
 a OSLC-CM Consumer.
@@ -101,7 +103,7 @@ Copyright 2008-2009 Best Practical Solutions.
 Distributed under the terms of the MIT License
 
 
-
+[webpage]: http://arroway.github.com/Net-OSLC-CM
 [syncwithus]: http://syncwith.us
 [prophet]:
 [sd-doc]: http://syncwith.us
